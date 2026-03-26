@@ -260,13 +260,18 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
     <!-- Active song badge -->
     <div class="active-badge" id="activeBadge">
       <div class="ab-top">
-        <div class="ab-left">
-          <div class="ab-tag" id="badgeTag">Dal vivo</div>
-          <div class="ab-name" id="badgeName">–</div>
-          <div class="ab-band" id="badgeBand">–</div>
-        </div>
-        <div class="ab-bpm-pill" id="badgeBpm">–</div>
-      </div>
+  <div class="ab-left">
+    <div class="ab-tag" id="badgeTag">Dal vivo</div>
+    <div class="ab-name" id="badgeName">–</div>
+    <div class="ab-band" id="badgeBand">–</div>
+  </div>
+  <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+    <div class="ab-bpm-pill" id="badgeBpm">–</div>
+    <button id="closeBadgeBtn" style="background:none; border:none; color:var(--muted); cursor:pointer; padding:5px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+</div>
       <!-- Prev / Next -->
       <div class="ab-nav">
         <button class="nav-btn" id="prevBtn">
@@ -492,10 +497,22 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
   }
 
   function updateBPM(v) {
-    bpm = Math.max(40, Math.min(240, v));
-    bpmDisp.textContent = bpm; bpmValEl.textContent = bpm; bpmSlider.value = bpm;
-    if (running) { stopMet(); startMet(); }
+  bpm = Math.max(40, Math.min(240, v));
+  bpmDisp.textContent = bpm; 
+  bpmValEl.textContent = bpm; 
+  bpmSlider.value = bpm;
+  
+  // Se c'è un brano attivo, aggiorniamo il badge senza chiuderlo
+  const song = getLiveSong();
+  if (song) {
+    badgeBpm.textContent = bpm + ' BPM';
+    // Opzionale: se vuoi che il cambio sia temporaneo e non salvi nel DB, 
+    // non chiamare save(). Se vuoi che "ricordi" il nuovo BPM, aggiungi:
+    // song.bpm = bpm; save(); 
   }
+
+  if (running) { stopMet(); startMet(); }
+}
   function volIcon() { const v = parseFloat(volSlider.value); w1.style.display = v>0.05?'':'none'; w2.style.display = v>0.4?'':'none'; }
 
   // ── PLAY/STOP ──────────────────────────────────────────────────────────────
@@ -811,6 +828,14 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
   document.addEventListener('keydown', e => {
     if (e.code==='Space') { const t=document.activeElement.tagName; if(t==='INPUT'||t==='TEXTAREA') return; e.preventDefault(); toggle(); }
   });
+
+  document.getElementById('closeBadgeBtn').addEventListener('click', (e) => {
+  e.stopPropagation(); // Evita di triggerare altri click
+  liveBandId = null;
+  liveSongId = null;
+  updateBadge(); // Nasconderà il badge
+  save();        // Salva lo stato "vuoto"
+});
 
   // ── PWA ────────────────────────────────────────────────────────────────────
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
