@@ -497,21 +497,27 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
   }
 
   function updateBPM(v) {
-  bpm = Math.max(40, Math.min(240, v));
-  bpmDisp.textContent = bpm; 
-  bpmValEl.textContent = bpm; 
-  bpmSlider.value = bpm;
-  
-  // Se c'è un brano attivo, aggiorniamo il badge senza chiuderlo
-  const song = getLiveSong();
-  if (song) {
-    badgeBpm.textContent = bpm + ' BPM';
-    // Opzionale: se vuoi che il cambio sia temporaneo e non salvi nel DB, 
-    // non chiamare save(). Se vuoi che "ricordi" il nuovo BPM, aggiungi:
-    // song.bpm = bpm; save(); 
-  }
+    bpm = Math.max(40, Math.min(240, v));
+    bpmDisp.textContent = bpm; 
+    bpmValEl.textContent = bpm; 
+    bpmSlider.value = bpm;
+    
+    // Aggiorna il valore nel badge se è visibile
+    if (liveSongId) {
+        const bBpm = document.getElementById('badgeBpm');
+        if (bBpm) bBpm.textContent = bpm + ' BPM';
+        
+        // Se vuoi che il cambio BPM venga salvato permanentemente nella setlist:
+        /*
+        const s = getLiveSong();
+        if (s) { s.bpm = bpm; save(); renderSongs(); }
+        */
+    }
 
-  if (running) { stopMet(); startMet(); }
+    if (running) { 
+        stopMet(); 
+        startMet(); 
+    }
 }
   function volIcon() { const v = parseFloat(volSlider.value); w1.style.display = v>0.05?'':'none'; w2.style.display = v>0.4?'':'none'; }
 
