@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0b0d0e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pocket Click">
+<link rel="manifest" href="manifest.json">
+<title>Pocket Click</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --accent: #5f8dff;
+  --accent-soft: rgba(95,141,255,.3);
+  --bg: #0b0d0e;
+  --card: #141618;
+  --card2: #1a1c1f;
+  --border: rgba(255,255,255,.08);
+  --text: #fff;
+  --muted: #666;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  overscroll-behavior: none;
+}
+
+/* ── LAYOUT ── */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ── TOP NAV ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--safe-top) + 14px) 20px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.topbar .brand { font-size: 9px; letter-spacing: .35em; text-transform: uppercase; color: #444; }
+.topbar .app-title { font-size: 16px; font-weight: 700; color: #ccc; }
+.tab-btns { display: flex; gap: 4px; }
+.tab-btn {
+  padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border);
+  background: transparent; color: var(--muted); font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all .2s;
+}
+.tab-btn.active { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.2); color: #fff; }
+
+/* ── PAGES ── */
+.page { display: none; flex: 1; overflow-y: auto; padding: 20px; padding-bottom: calc(var(--safe-bottom) + 20px); }
+.page.visible { display: flex; flex-direction: column; gap: 18px; }
+
+/* ── METRONOME PAGE ── */
+.circle-wrap { display: flex; justify-content: center; padding: 8px 0; }
+.circle {
+  width: 180px; height: 180px; border-radius: 50%;
+  border: 10px solid rgba(255,255,255,.1);
+  background: #0f1011;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; user-select: none;
+  transition: border-color .5s, box-shadow .1s;
+}
+.circle:hover { border-color: rgba(255,255,255,.2); }
+.circle.flash { box-shadow: 0 0 50px var(--accent), 0 0 90px var(--accent-soft); }
+.bpm-num { font-size: 60px; font-weight: 700; line-height: 1; color: var(--accent); transition: color .6s; }
+.bpm-lbl { font-size: 11px; letter-spacing: .4em; text-transform: uppercase; color: #555; margin-top: 4px; }
+.circle-hint { font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: #2a2a2a; margin-top: 8px; transition: color .3s; }
+.circle:hover .circle-hint, .circle.on .circle-hint { color: #555; }
+
+/* active song badge */
+.active-song-badge {
+  display: none;
+  align-items: center; justify-content: space-between;
+  background: rgba(255,255,255,.04); border: 1px solid var(--border);
+  border-radius: 14px; padding: 12px 16px;
+}
+.active-song-badge.visible { display: flex; }
+.asb-left { display: flex; flex-direction: column; gap: 3px; }
+.asb-label { font-size: 9px; letter-spacing: .3em; text-transform: uppercase; color: var(--muted); }
+.asb-name { font-size: 15px; font-weight: 600; color: #ddd; }
+.asb-bpm { font-size: 12px; color: var(--accent); transition: color .6s; }
+.asb-next {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 14px; border-radius: 12px;
+  border: 1px solid var(--border); background: rgba(255,255,255,.06);
+  color: #aaa; font-size: 12px; font-weight: 600; cursor: pointer;
+  transition: all .15s; white-space: nowrap;
+}
+.asb-next:hover { background: rgba(255,255,255,.14); color: #fff; }
+.asb-next:active { transform: scale(.96); }
+.asb-next svg { flex-shrink: 0; }
+
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 18px;
+}
+
+.bpm-row { display: flex; align-items: center; gap: 10px; }
+.pm-btn {
+  flex-shrink: 0; width: 38px; height: 38px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06);
+  color: #ccc; font-size: 22px; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s; user-select: none;
+}
+.pm-btn:hover { background: rgba(255,255,255,.14); color: #fff; }
+.pm-btn:active { transform: scale(.93); }
+input[type=range] {
+  flex: 1; height: 4px; -webkit-appearance: none; appearance: none;
+  background: rgba(255,255,255,.1); border-radius: 2px; cursor: pointer; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--accent); cursor: pointer; box-shadow: 0 0 8px var(--accent); transition: background .6s, box-shadow .6s;
+}
+input[type=range]::-moz-range-thumb {
+  width: 20px; height: 20px; border-radius: 50%; background: var(--accent);
+  cursor: pointer; border: none; box-shadow: 0 0 8px var(--accent);
+}
+.bpm-val { min-width: 46px; text-align: right; font-size: 24px; font-weight: 700; color: var(--accent); transition: color .6s; }
+
+.sub-row { display: flex; gap: 6px; }
+.sub-btn {
+  flex: 1; padding: 9px 4px; border-radius: 11px;
+  border: 1px solid rgba(255,255,255,.07); background: rgba(255,255,255,.03);
+  color: #555; font-size: 11px; font-weight: 600; cursor: pointer; transition: all .15s; text-align: center;
+}
+.sub-btn:hover { background: rgba(255,255,255,.08); color: #aaa; }
+.sub-btn.active { background: rgba(255,255,255,.1); border-color: var(--accent); color: #fff; }
+
+.vol-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; background: var(--card2);
+  border: 1px solid var(--border); border-radius: 13px;
+}
+.vol-icon { color: #444; display: flex; align-items: center; }
+.vol-lbl { font-size: 11px; color: #444; min-width: 34px; text-align: right; }
+
+.play-btn {
+  width: 100%; padding: 17px; border-radius: 18px;
+  border: 1px solid rgba(62,92,85,.45);
+  background: linear-gradient(135deg, #3e5c55, #2a4039);
+  color: #c8f0e8; font-size: 17px; font-weight: 700; letter-spacing: .08em;
+  cursor: pointer; transition: all .2s;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.play-btn:hover { filter: brightness(1.18); }
+.play-btn:active { transform: scale(.98); }
+.play-btn.on { border-color: rgba(115,72,72,.45); background: linear-gradient(135deg, #734848, #4f3030); color: #fce0e0; }
+
+/* ── SETLIST PAGE ── */
+.sl-header { display: flex; align-items: center; justify-content: space-between; }
+.sl-header h2 { font-size: 15px; font-weight: 700; color: #ccc; }
+.sl-count { font-size: 11px; color: var(--muted); }
+
+.add-form {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 12px;
+}
+.add-form .form-title { font-size: 11px; letter-spacing: .25em; text-transform: uppercase; color: var(--muted); }
+.form-row { display: flex; gap: 10px; align-items: center; }
+.inp {
+  flex: 1; background: var(--card2); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 11px; padding: 10px 13px; color: #fff; font-size: 14px;
+  outline: none; transition: border .2s;
+}
+.inp::placeholder { color: #444; }
+.inp:focus { border-color: rgba(255,255,255,.25); }
+.inp-bpm { width: 80px; flex: none; text-align: center; font-weight: 700; font-size: 16px; }
+.add-btn {
+  padding: 10px 18px; border-radius: 11px;
+  border: 1px solid rgba(95,141,255,.4); background: rgba(95,141,255,.15);
+  color: #a0bfff; font-size: 14px; font-weight: 700; cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.add-btn:hover { background: rgba(95,141,255,.25); color: #c0d8ff; }
+.add-btn:active { transform: scale(.96); }
+
+.sl-list { display: flex; flex-direction: column; gap: 8px; }
+.sl-empty {
+  text-align: center; padding: 40px 20px;
+  color: #333; font-size: 13px; line-height: 1.8;
+}
+.sl-empty span { display: block; font-size: 32px; margin-bottom: 10px; }
+
+.song-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+  transition: border-color .2s;
+  cursor: pointer;
+}
+.song-card:hover { border-color: rgba(255,255,255,.16); }
+.song-card.current {
+  border-color: var(--accent);
+  background: rgba(95,141,255,.08);
+}
+.song-num { font-size: 11px; color: #333; min-width: 20px; font-weight: 700; }
+.song-card.current .song-num { color: var(--accent); }
+.song-info { flex: 1; min-width: 0; }
+.song-name { font-size: 15px; font-weight: 600; color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.song-card.current .song-name { color: #fff; }
+.song-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.song-bpm-badge {
+  font-size: 15px; font-weight: 700; color: var(--accent);
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 10px; padding: 5px 11px; flex-shrink: 0; transition: color .6s;
+}
+.song-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.icon-btn {
+  width: 32px; height: 32px; border-radius: 9px;
+  border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.04);
+  color: #555; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.icon-btn:hover { background: rgba(255,255,255,.12); color: #aaa; }
+.icon-btn.del:hover { background: rgba(200,60,60,.15); border-color: rgba(200,60,60,.3); color: #e07070; }
+.icon-btn:active { transform: scale(.9); }
+
+.sl-actions { display: flex; gap: 8px; }
+.sl-action-btn {
+  flex: 1; padding: 11px; border-radius: 13px;
+  border: 1px solid var(--border); background: rgba(255,255,255,.04);
+  color: #666; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.sl-action-btn:hover { background: rgba(255,255,255,.1); color: #bbb; }
+.sl-action-btn.danger:hover { background: rgba(200,60,60,.1); border-color: rgba(200,60,60,.25); color: #e07070; }
+
+/* ── FOOTER ── */
+.footer-link {
+  text-align: center; font-size: 9px; letter-spacing: .2em;
+  text-transform: uppercase; color: #222; padding: 6px;
+  flex-shrink: 0;
+}
+.footer-link a { color: #2a2a2a; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div>
+      <div class="brand">ABCD method:click</div>
+      <div class="app-title">Pocket Click</div>
+    </div>
+    <div class="tab-btns">
+      <button class="tab-btn active" id="tabMet">Click</button>
+      <button class="tab-btn" id="tabSet">Setlist</button>
+    </div>
+  </div>
+
+  <!-- ══ PAGE: METRONOME ══ -->
+  <div class="page visible" id="pageMet">
+
+    <!-- Active song badge -->
+    <div class="active-song-badge" id="activeBadge">
+      <div class="asb-left">
+        <div class="asb-label">Dal vivo</div>
+        <div class="asb-name" id="badgeName">–</div>
+        <div class="asb-bpm" id="badgeBpm">– BPM</div>
+      </div>
+      <button class="asb-next" id="nextSongBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+        Prossimo
+      </button>
+    </div>
+
+    <!-- Circle -->
+    <div class="circle-wrap">
+      <div class="circle" id="circle">
+        <div class="bpm-num" id="bpmDisplay">100</div>
+        <div class="bpm-lbl">BPM</div>
+        <div class="circle-hint" id="circleHint">tap to start</div>
+      </div>
+    </div>
+
+    <!-- BPM control -->
+    <div class="card">
+      <div class="bpm-row">
+        <button class="pm-btn" id="btnMinus">−</button>
+        <input type="range" id="bpmSlider" min="40" max="240" value="100">
+        <button class="pm-btn" id="btnPlus">+</button>
+        <div class="bpm-val" id="bpmVal">100</div>
+      </div>
+    </div>
+
+    <!-- Subdivision -->
+    <div class="sub-row">
+      <button class="sub-btn active" data-beats="1">♩ 1/4</button>
+      <button class="sub-btn" data-beats="2">♪♪ 1/8</button>
+      <button class="sub-btn" data-beats="3">♪♪♪ Trip.</button>
+      <button class="sub-btn" data-beats="4">♬♬ 1/16</button>
+    </div>
+
+    <!-- Volume -->
+    <div class="vol-row">
+      <span class="vol-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          <path id="wave1" d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          <path id="wave2" d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+        </svg>
+      </span>
+      <input type="range" id="volSlider" min="0" max="1" step="0.01" value="0.85">
+      <span class="vol-lbl" id="volLabel">85%</span>
+    </div>
+
+    <!-- Play -->
+    <button class="play-btn" id="playBtn">
+      <svg id="playIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      <span id="playLabel">START</span>
+    </button>
+
+  </div><!-- /pageMet -->
+
+  <!-- ══ PAGE: SETLIST ══ -->
+  <div class="page" id="pageSet">
+
+    <div class="sl-header">
+      <h2>Setlist</h2>
+      <span class="sl-count" id="slCount">0 brani</span>
+    </div>
+
+    <!-- Add song form -->
+    <div class="add-form">
+      <div class="form-title">Aggiungi brano</div>
+      <div class="form-row">
+        <input class="inp" id="inpName" type="text" placeholder="Nome del brano…" maxlength="50">
+        <input class="inp inp-bpm" id="inpBpm" type="number" placeholder="BPM" min="40" max="240" value="">
+      </div>
+      <div class="form-row">
+        <input class="inp" id="inpNote" type="text" placeholder="Note (opzionale)…" maxlength="60">
+        <button class="add-btn" id="addBtn">+ Aggiungi</button>
+      </div>
+    </div>
+
+    <!-- List -->
+    <div class="sl-list" id="slList"></div>
+
+    <!-- Bottom actions -->
+    <div class="sl-actions" id="slActions" style="display:none">
+      <button class="sl-action-btn" id="exportBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Esporta
+      </button>
+      <button class="sl-action-btn danger" id="clearBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        Svuota
+      </button>
+    </div>
+
+  </div><!-- /pageSet -->
+
+  <div class="footer-link"><a href="https://batterista.online" target="_blank" rel="noopener">batterista.online</a></div>
+</div><!-- /app -->
+
+<script>
+(function () {
+  // ── Constants ──────────────────────────────────────────────────────────────
+  const ACCENTS = ['#5f8dff', '#f1b54f', '#ff865c', '#5dda9d'];
+  const PLAY_SVG  = '<polygon points="5 3 19 12 5 21 5 3"/>';
+  const PAUSE_SVG = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+  const SUB_NAMES = { 1: '1/4', 2: '1/8', 3: 'Terzine', 4: '1/16' };
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  let bpm = 100, sub = 1, vol = 0.85, running = false;
+  let audioCtx = null, masterGain = null;
+  let nextT = 0, noteN = 0, timerId = null;
+  let ai = 0, bars = 0;
+  let setlist = [];       // [{id, name, bpm, note}]
+  let currentIdx = null;  // index of active song in setlist
+
+  // ── DOM ────────────────────────────────────────────────────────────────────
+  const root      = document.documentElement;
+  const circle    = document.getElementById('circle');
+  const hint      = document.getElementById('circleHint');
+  const bpmDisp   = document.getElementById('bpmDisplay');
+  const bpmValEl  = document.getElementById('bpmVal');
+  const bpmSlider = document.getElementById('bpmSlider');
+  const volSlider = document.getElementById('volSlider');
+  const volLabel  = document.getElementById('volLabel');
+  const playBtn   = document.getElementById('playBtn');
+  const playIco   = document.getElementById('playIcon');
+  const playLbl   = document.getElementById('playLabel');
+  const w1        = document.getElementById('wave1');
+  const w2        = document.getElementById('wave2');
+  const badge     = document.getElementById('activeBadge');
+  const badgeName = document.getElementById('badgeName');
+  const badgeBpm  = document.getElementById('badgeBpm');
+  const nextSongBtn = document.getElementById('nextSongBtn');
+  const slList    = document.getElementById('slList');
+  const slCount   = document.getElementById('slCount');
+  const slActions = document.getElementById('slActions');
+  const inpName   = document.getElementById('inpName');
+  const inpBpm    = document.getElementById('inpBpm');
+  const inpNote   = document.getElementById('inpNote');
+
+  // ── Audio ──────────────────────────────────────────────────────────────────
+  function ensureAudio() {
+    if (audioCtx && audioCtx.state !== 'closed') return true;
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new Ctx();
+      masterGain = audioCtx.createGain();
+      masterGain.gain.value = vol;
+      masterGain.connect(audioCtx.destination);
+      return true;
+    } catch (e) { return false; }
+  }
+
+  function tone(t, accent) {
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.connect(g); g.connect(masterGain);
+    o.frequency.value = accent ? 1200 : 800;
+    g.gain.value = accent ? 0.28 : 0.14;
+    o.start(t); o.stop(t + 0.05);
+    setTimeout(doFlash, Math.max(0, (t - audioCtx.currentTime) * 1000));
+  }
+
+  function scheduler() {
+    const spn = 60 / (bpm * sub);
+    while (nextT < audioCtx.currentTime + 0.2) {
+      const acc = (noteN % sub === 0);
+      tone(nextT, acc);
+      nextT += spn; noteN++;
+      if (acc) {
+        bars++;
+        if (bars % 4 === 0) { ai = (ai + 1) % ACCENTS.length; setAccent(ai); }
+      }
+    }
+    timerId = setTimeout(scheduler, 100);
+  }
+
+  function startMet() {
+    if (!ensureAudio()) return;
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    noteN = 0; nextT = audioCtx.currentTime;
+    scheduler();
+  }
+
+  function stopMet() { if (timerId) { clearTimeout(timerId); timerId = null; } }
+
+  // ── Visual ─────────────────────────────────────────────────────────────────
+  let flashT = null;
+  function doFlash() {
+    circle.classList.add('flash');
+    if (flashT) clearTimeout(flashT);
+    flashT = setTimeout(() => circle.classList.remove('flash'), 110);
+  }
+
+  function setAccent(i) {
+    const c = ACCENTS[i];
+    root.style.setProperty('--accent', c);
+    // soft version
+    const r = parseInt(c.slice(1,3),16), g = parseInt(c.slice(3,5),16), b = parseInt(c.slice(5,7),16);
+    root.style.setProperty('--accent-soft', `rgba(${r},${g},${b},.3)`);
+  }
+
+  function updateBPM(v) {
+    bpm = Math.max(40, Math.min(240, v));
+    bpmDisp.textContent = bpm;
+    bpmValEl.textContent = bpm;
+    bpmSlider.value = bpm;
+    if (running) { stopMet(); startMet(); }
+  }
+
+  function volIcon() {
+    const v = parseFloat(volSlider.value);
+    w1.style.display = v > 0.05 ? '' : 'none';
+    w2.style.display = v > 0.4  ? '' : 'none';
+  }
+
+  // ── Play / Stop ─────────────────────────────────────────────────────────────
+  function toggle() {
+    running = !running;
+    if (running) {
+      ai = 0; bars = 0; setAccent(0);
+      startMet();
+      playBtn.classList.add('on');
+      playIco.innerHTML = PAUSE_SVG;
+      playLbl.textContent = 'PAUSA';
+      circle.classList.add('on');
+      hint.textContent = 'tap to stop';
+    } else {
+      stopMet();
+      playBtn.classList.remove('on');
+      playIco.innerHTML = PLAY_SVG;
+      playLbl.textContent = 'START';
+      circle.classList.remove('on');
+      hint.textContent = 'tap to start';
+    }
+  }
+
+  // ── Setlist ────────────────────────────────────────────────────────────────
+  function loadSetlist() {
+    try { setlist = JSON.parse(localStorage.getItem('pc_setlist') || '[]'); } catch { setlist = []; }
+    if (localStorage.getItem('pc_current') !== null) {
+      currentIdx = parseInt(localStorage.getItem('pc_current'));
+    }
+    renderSetlist();
+    updateBadge();
+  }
+
+  function saveSetlist() {
+    localStorage.setItem('pc_setlist', JSON.stringify(setlist));
+    localStorage.setItem('pc_current', currentIdx ?? '');
+  }
+
+  function addSong() {
+    const name = inpName.value.trim();
+    const b = parseInt(inpBpm.value);
+    if (!name) { inpName.focus(); return; }
+    if (!b || b < 40 || b > 240) { inpBpm.focus(); return; }
+    const note = inpNote.value.trim();
+    setlist.push({ id: Date.now(), name, bpm: b, note });
+    inpName.value = ''; inpBpm.value = ''; inpNote.value = '';
+    saveSetlist();
+    renderSetlist();
+    inpName.focus();
+  }
+
+  function removeSong(id) {
+    const idx = setlist.findIndex(s => s.id === id);
+    if (idx === -1) return;
+    setlist.splice(idx, 1);
+    if (currentIdx !== null) {
+      if (idx < currentIdx) currentIdx--;
+      else if (idx === currentIdx) currentIdx = null;
+    }
+    saveSetlist();
+    renderSetlist();
+    updateBadge();
+  }
+
+  function moveSong(id, dir) {
+    const idx = setlist.findIndex(s => s.id === id);
+    const target = idx + dir;
+    if (target < 0 || target >= setlist.length) return;
+    [setlist[idx], setlist[target]] = [setlist[target], setlist[idx]];
+    if (currentIdx === idx) currentIdx = target;
+    else if (currentIdx === target) currentIdx = idx;
+    saveSetlist();
+    renderSetlist();
+    updateBadge();
+  }
+
+  function selectSong(idx) {
+    currentIdx = idx;
+    const song = setlist[idx];
+    updateBPM(song.bpm);
+    saveSetlist();
+    renderSetlist();
+    updateBadge();
+    // Switch to metronome tab
+    showPage('met');
+  }
+
+  function nextSong() {
+    if (currentIdx === null || setlist.length === 0) return;
+    const next = currentIdx + 1;
+    if (next >= setlist.length) return;
+    selectSong(next);
+  }
+
+  function updateBadge() {
+    if (currentIdx !== null && setlist[currentIdx]) {
+      const s = setlist[currentIdx];
+      badge.classList.add('visible');
+      badgeName.textContent = s.name;
+      badgeBpm.textContent = s.bpm + ' BPM';
+      nextSongBtn.style.display = (currentIdx < setlist.length - 1) ? 'flex' : 'none';
+    } else {
+      badge.classList.remove('visible');
+    }
+  }
+
+  function renderSetlist() {
+    const count = setlist.length;
+    slCount.textContent = count === 0 ? '0 brani' : count === 1 ? '1 brano' : count + ' brani';
+    slActions.style.display = count > 0 ? 'flex' : 'none';
+
+    if (count === 0) {
+      slList.innerHTML = `<div class="sl-empty"><span>🎵</span>La tua setlist è vuota.<br>Aggiungi i brani qui sopra<br>e carica il BPM in un tap.</div>`;
+      return;
+    }
+
+    slList.innerHTML = setlist.map((s, i) => `
+      <div class="song-card ${currentIdx === i ? 'current' : ''}" data-id="${s.id}">
+        <div class="song-num">${i + 1}</div>
+        <div class="song-info">
+          <div class="song-name">${esc(s.name)}</div>
+          <div class="song-sub">${s.note ? esc(s.note) : SUB_NAMES[sub] + ' · ' + sub + ' click/battuta'}</div>
+        </div>
+        <div class="song-bpm-badge">${s.bpm}</div>
+        <div class="song-actions">
+          <button class="icon-btn" data-action="up" data-id="${s.id}" title="Su" ${i === 0 ? 'disabled style="opacity:.3"' : ''}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>
+          </button>
+          <button class="icon-btn" data-action="down" data-id="${s.id}" title="Giù" ${i === setlist.length - 1 ? 'disabled style="opacity:.3"' : ''}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <button class="icon-btn del" data-action="del" data-id="${s.id}" title="Elimina">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+    `).join('');
+
+    // click on card body → select song
+    slList.querySelectorAll('.song-card').forEach((card, i) => {
+      card.addEventListener('click', e => {
+        if (e.target.closest('.song-actions')) return;
+        selectSong(i);
+      });
+    });
+
+    // action buttons
+    slList.querySelectorAll('[data-action]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const id = parseInt(btn.dataset.id);
+        const action = btn.dataset.action;
+        if (action === 'del') removeSong(id);
+        if (action === 'up') moveSong(id, -1);
+        if (action === 'down') moveSong(id, 1);
+      });
+    });
+  }
+
+  function esc(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function exportSetlist() {
+    const lines = setlist.map((s, i) => `${i+1}. ${s.name} — ${s.bpm} BPM${s.note ? ' ('+s.note+')' : ''}`);
+    const text = 'POCKET CLICK – Setlist\n' + '─'.repeat(30) + '\n' + lines.join('\n');
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'setlist.txt'; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ── Tabs ───────────────────────────────────────────────────────────────────
+  function showPage(which) {
+    document.getElementById('pageMet').classList.toggle('visible', which === 'met');
+    document.getElementById('pageSet').classList.toggle('visible', which === 'set');
+    document.getElementById('tabMet').classList.toggle('active', which === 'met');
+    document.getElementById('tabSet').classList.toggle('active', which === 'set');
+  }
+
+  // ── Events ─────────────────────────────────────────────────────────────────
+  document.getElementById('tabMet').addEventListener('click', () => showPage('met'));
+  document.getElementById('tabSet').addEventListener('click', () => showPage('set'));
+
+  circle.addEventListener('click', toggle);
+  playBtn.addEventListener('click', toggle);
+
+  document.getElementById('btnMinus').addEventListener('click', () => { updateBPM(bpm - 1); currentIdx = null; updateBadge(); });
+  document.getElementById('btnPlus').addEventListener('click',  () => { updateBPM(bpm + 1); currentIdx = null; updateBadge(); });
+  bpmSlider.addEventListener('input', () => { updateBPM(parseInt(bpmSlider.value)); currentIdx = null; updateBadge(); });
+
+  volSlider.addEventListener('input', () => {
+    vol = parseFloat(volSlider.value);
+    volLabel.textContent = Math.round(vol * 100) + '%';
+    if (masterGain) masterGain.gain.value = vol;
+    volIcon();
+  });
+
+  document.querySelectorAll('.sub-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      sub = parseInt(btn.dataset.beats);
+      if (running) { stopMet(); startMet(); }
+    });
+  });
+
+  document.getElementById('addBtn').addEventListener('click', addSong);
+  inpName.addEventListener('keydown', e => { if (e.key === 'Enter') { inpBpm.focus(); } });
+  inpBpm.addEventListener('keydown', e => { if (e.key === 'Enter') addSong(); });
+  inpNote.addEventListener('keydown', e => { if (e.key === 'Enter') addSong(); });
+
+  nextSongBtn.addEventListener('click', nextSong);
+
+  document.getElementById('exportBtn').addEventListener('click', exportSetlist);
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    if (confirm('Svuotare tutta la setlist?')) {
+      setlist = []; currentIdx = null;
+      saveSetlist(); renderSetlist(); updateBadge();
+    }
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.code === 'Space') {
+      const t = document.activeElement.tagName;
+      if (t === 'INPUT' || t === 'TEXTAREA') return;
+      e.preventDefault(); toggle();
+    }
+  });
+
+  // ── PWA service worker ─────────────────────────────────────────────────────
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
+
+  // ── Init ───────────────────────────────────────────────────────────────────
+  volIcon();
+  loadSetlist();
+
+})();
+</script>
+</body>
+</html>
