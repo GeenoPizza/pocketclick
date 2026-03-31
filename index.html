@@ -59,7 +59,38 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .card { background: var(--card); border: 1px solid var(--card-border); border-radius: 20px; padding: 16px 18px; }
 
 /* ── METRONOME ── */
-.circle-wrap { display: flex; justify-content: center; padding: 6px 0 8px; }
+.circle-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 0 8px;
+  height: 210px; /* fixed height so absolute children have reference */
+}
+/* Small circles float left/right absolutely */
+.side-circle {
+  position: absolute;
+  top: 50%; transform: translateY(-50%);
+  width: 80px; height: 80px; border-radius: 50%;
+  border: 6px solid rgba(255,255,255,.1);
+  background: radial-gradient(circle at 38% 33%, rgba(255,255,255,0.05), #0c0d0f 60%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; user-select: none;
+  transition: border-color .3s, box-shadow .1s;
+  box-shadow: 0 8px 24px rgba(0,0,0,.4);
+}
+.side-circle:hover { border-color: rgba(255,255,255,.2); }
+.side-circle-label {
+  font-size: 8px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: #555; text-align: center;
+  transition: color .2s; line-height: 1.3; padding: 0 4px;
+}
+.side-circle:hover .side-circle-label { color: #999; }
+/* tap circle is on the right */
+.tap-circle { right: 12px; }
+/* stage circle is on the left */
+.stage-circle { left: 12px; }
+.stage-circle:hover .side-circle-label { color: #aaa; }
 .circle {
   width: 190px; height: 190px; border-radius: 50%;
   border: 10px solid rgba(255,255,255,.13);
@@ -77,6 +108,89 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .bpm-lbl { font-size: 10px; letter-spacing: .45em; text-transform: uppercase; color: #666; margin-top: 5px; }
 .circle-hint { font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: #333; margin-top: 9px; transition: color .3s; }
 .circle:hover .circle-hint, .circle.on .circle-hint { color: #666; }
+
+/* ── TAP TEMPO CIRCLE ── */
+.tap-circle.tap-flash {
+  box-shadow: 0 0 0 2px var(--accent), 0 0 24px var(--accent), 0 8px 24px rgba(0,0,0,.4);
+  border-color: var(--accent);
+}
+.tap-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .15em;
+  text-transform: uppercase; color: #555; transition: color .2s; line-height: 1;
+}
+.tap-circle:hover .tap-label { color: #888; }
+.tap-circle.tap-flash .tap-label { color: var(--accent); }
+.tap-bpm {
+  font-size: 17px; font-weight: 700; color: var(--accent);
+  transition: color .5s; letter-spacing: -1px; margin-top: 2px; min-height: 20px;
+}
+.tap-hint {
+  font-size: 7px; letter-spacing: .15em; text-transform: uppercase;
+  color: #333; margin-top: 3px; transition: color .2s;
+}
+.tap-circle:hover .tap-hint { color: #555; }
+
+/* ── STAGE MODE OVERLAY ── */
+.stage-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 100;
+  background: #000;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+.stage-overlay.active { display: flex; }
+
+/* Big circle in stage mode */
+.stage-big-circle {
+  width: 240px; height: 240px; border-radius: 50%;
+  border: 10px solid rgba(255,255,255,.1);
+  background: radial-gradient(circle at 38% 33%, rgba(255,255,255,0.06), #050505 58%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  transition: border-color .5s, box-shadow .1s;
+  box-shadow: 0 0 60px rgba(0,0,0,.8);
+  cursor: pointer; user-select: none;
+}
+.stage-big-circle.flash {
+  box-shadow: 0 0 0 3px var(--accent), 0 0 50px var(--accent), 0 0 100px var(--accent-soft);
+}
+.stage-bpm-num { font-size: 78px; font-weight: 700; color: var(--accent); transition: color .5s; letter-spacing: -3px; line-height: 1; }
+.stage-bpm-lbl { font-size: 10px; letter-spacing: .45em; text-transform: uppercase; color: #333; margin-top: 6px; }
+
+/* Song nav bar in stage mode */
+.stage-nav {
+  display: flex; align-items: center; justify-content: center;
+  gap: 18px; margin-top: 40px; width: 100%; padding: 0 24px;
+}
+.stage-nav-btn {
+  width: 48px; height: 48px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.05);
+  color: #666; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all .15s; flex-shrink: 0;
+}
+.stage-nav-btn:hover { border-color: rgba(255,255,255,.25); color: #ddd; background: rgba(255,255,255,.1); }
+.stage-nav-btn:active { transform: scale(.92); }
+.stage-nav-btn:disabled { opacity: .18; pointer-events: none; }
+.stage-song-info { flex: 1; text-align: center; min-width: 0; }
+.stage-song-name { font-size: 18px; font-weight: 700; color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stage-band-name { font-size: 11px; letter-spacing: .25em; text-transform: uppercase; color: #444; margin-top: 4px; }
+.stage-song-bpm  { font-size: 13px; font-weight: 600; color: var(--accent); transition: color .5s; margin-top: 6px; }
+
+/* Neighbors (prev/next song names) */
+.stage-neighbors { margin-top: 28px; display: flex; justify-content: space-between; width: 100%; padding: 0 32px; }
+.stage-neighbor { font-size: 11px; color: #333; max-width: 44%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stage-neighbor.right { text-align: right; }
+
+/* Exit button top-right */
+.stage-exit {
+  position: absolute; top: calc(env(safe-area-inset-top, 0px) + 16px); right: 20px;
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06);
+  color: #555; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.stage-exit:hover { background: rgba(255,255,255,.12); color: #ccc; }
 
 /* BPM row */
 .bpm-row { display: flex; align-items: center; gap: 10px; }
@@ -269,10 +383,21 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
   <div class="page visible" id="pageMet">
 
     <div class="circle-wrap">
+      <!-- Stage mode button — left -->
+      <div class="side-circle stage-circle" id="stageCircleBtn">
+        <div class="side-circle-label">STAGE<br>MODE</div>
+      </div>
+      <!-- Main metronome circle — center -->
       <div class="circle" id="circle">
         <div class="bpm-num" id="bpmDisp">100</div>
         <div class="bpm-lbl">BPM</div>
         <div class="circle-hint" id="circleHint">tap to start</div>
+      </div>
+      <!-- Tap tempo button — right -->
+      <div class="side-circle tap-circle" id="tapCircle">
+        <div class="tap-label">TAP</div>
+        <div class="tap-bpm" id="tapBpm"></div>
+        <div class="tap-hint" id="tapHint">tempo</div>
       </div>
     </div>
 
@@ -358,11 +483,12 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
         <h2>Le tue Band</h2>
         <div style="display:flex;gap:6px;align-items:center;">
           <span class="sec-count" id="bandCount">0 band</span>
-          <button class="icon-btn" id="exportDataBtn" title="Esporta backup">
-           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <button class="icon-btn" id="exportDataBtn" title="Esporta backup (JSON)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           </button>
-          <button class="icon-btn" id="importDataBtn" title="Importa backup">
+          <button class="icon-btn" id="importDataBtn" title="Importa backup (JSON)">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            
           </button>
           <input type="file" id="importFileInput" accept=".json" style="display:none">
         </div>
@@ -417,6 +543,45 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
       </div>
     </div>
 
+  </div>
+
+  <!-- ══ STAGE MODE OVERLAY ══ -->
+  <div class="stage-overlay" id="stageOverlay">
+    <button class="stage-exit" id="stageExit">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    <div class="stage-big-circle" id="stageBigCircle">
+      <div class="stage-bpm-num" id="stageBpmNum">100</div>
+      <div class="stage-bpm-lbl">BPM</div>
+    </div>
+
+    <div class="stage-nav" id="stageNav">
+      <button class="stage-nav-btn" id="stagePrev">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <line x1="5" y1="5" x2="5" y2="19"/>
+          <polygon points="9 12 19 4 19 20 9 12"/>
+        </svg>
+      </button>
+      <div class="stage-song-info" id="stageSongInfo">
+        <div class="stage-song-name" id="stageSongName">–</div>
+        <div class="stage-band-name" id="stageBandName">–</div>
+        <div class="stage-song-bpm" id="stageSongBpm">–</div>
+      </div>
+      <button class="stage-nav-btn" id="stageNext">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <polygon points="5 4 15 12 5 20 5 4"/>
+          <line x1="19" y1="5" x2="19" y2="19"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="stage-neighbors">
+      <div class="stage-neighbor" id="stageNeighborPrev"></div>
+      <div class="stage-neighbor right" id="stageNeighborNext"></div>
+    </div>
   </div>
 
 </div><!-- /app -->
@@ -495,7 +660,7 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
 
   // ── VISUAL ─────────────────────────────────────────────────────────────────
   let flashT = null;
-  function doFlash() { circle.classList.add('flash'); if (flashT) clearTimeout(flashT); flashT = setTimeout(() => circle.classList.remove('flash'), 110); }
+  // doFlash defined below (after stage mode, so it can flash both circles)
 
   function setMetAccent(i) {
     const c = ACCENTS[i];
@@ -520,6 +685,65 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
   }
 
   function volIcon() { const v = parseFloat(volSlider.value); w1.style.display = v>0.05?'':'none'; w2.style.display = v>0.4?'':'none'; }
+
+  // ── TAP TEMPO ──────────────────────────────────────────────────────────────
+  const tapCircle  = document.getElementById('tapCircle');
+  const tapBpmEl   = document.getElementById('tapBpm');
+  const tapHintEl  = document.getElementById('tapHint');
+  let tapTimes     = [];
+  let tapResetTid  = null;
+  let tapFlashTid  = null;
+
+  function doTap() {
+    const now = Date.now();
+
+    // Reset if more than 3s since last tap
+    if (tapTimes.length > 0 && now - tapTimes[tapTimes.length - 1] > 3000) {
+      tapTimes = [];
+    }
+
+    tapTimes.push(now);
+
+    // Keep last 8 taps for average
+    if (tapTimes.length > 8) tapTimes = tapTimes.slice(-8);
+
+    // Need at least 2 taps to calculate
+    if (tapTimes.length >= 2) {
+      const intervals = [];
+      for (let i = 1; i < tapTimes.length; i++) {
+        intervals.push(tapTimes[i] - tapTimes[i-1]);
+      }
+      const avg = intervals.reduce((a,b) => a+b, 0) / intervals.length;
+      const detected = Math.round(60000 / avg);
+      const clamped  = Math.max(40, Math.min(240, detected));
+
+      tapBpmEl.textContent = clamped;
+      tapHintEl.textContent = 'carica →';
+
+      // Load into metronome on tap if ≥ 2 readings
+      updateBPMDisplay(clamped);
+    } else {
+      tapBpmEl.textContent = '';
+      tapHintEl.textContent = '...';
+    }
+
+    // Flash
+    tapCircle.classList.add('tap-flash');
+    if (tapFlashTid) clearTimeout(tapFlashTid);
+    tapFlashTid = setTimeout(() => tapCircle.classList.remove('tap-flash'), 150);
+
+    // Auto-reset after 3s of inactivity
+    if (tapResetTid) clearTimeout(tapResetTid);
+    tapResetTid = setTimeout(() => {
+      tapTimes = [];
+      tapBpmEl.textContent = '';
+      tapHintEl.textContent = 'tempo';
+    }, 3000);
+  }
+
+  tapCircle.addEventListener('click', doTap);
+  // Also support touch for faster response on mobile
+  tapCircle.addEventListener('touchstart', e => { e.preventDefault(); doTap(); }, { passive: false });
 
   // ── PLAY/STOP ──────────────────────────────────────────────────────────────
   function toggle() {
@@ -874,6 +1098,108 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
   document.addEventListener('keydown', e => {
     if (e.code==='Space') { const t=document.activeElement.tagName; if(t==='INPUT'||t==='TEXTAREA') return; e.preventDefault(); toggle(); }
   });
+
+  // ── STAGE MODE ────────────────────────────────────────────────────────────
+  const stageOverlay    = document.getElementById('stageOverlay');
+  const stageBigCircle  = document.getElementById('stageBigCircle');
+  const stageBpmNum     = document.getElementById('stageBpmNum');
+  const stageSongName   = document.getElementById('stageSongName');
+  const stageBandName   = document.getElementById('stageBandName');
+  const stageSongBpm    = document.getElementById('stageSongBpm');
+  const stageNav        = document.getElementById('stageNav');
+  const stagePrev       = document.getElementById('stagePrev');
+  const stageNext       = document.getElementById('stageNext');
+  const stageNeighborPrev = document.getElementById('stageNeighborPrev');
+  const stageNeighborNext = document.getElementById('stageNeighborNext');
+  let stageOpen = false;
+
+  function updateStageUI() {
+    // Always sync BPM number
+    stageBpmNum.textContent = bpm;
+    const band = getLiveBand();
+    const song = getLiveSong();
+    if (band && song) {
+      stageNav.style.display = 'flex';
+      stageSongName.textContent = song.name;
+      stageBandName.textContent = band.name;
+      stageSongBpm.textContent  = song.bpm + ' BPM';
+      const idx  = getLiveIdx();
+      const prev = idx > 0 ? band.songs[idx-1] : null;
+      const next = idx < band.songs.length-1 ? band.songs[idx+1] : null;
+      stagePrev.disabled = !prev;
+      stageNext.disabled = !next;
+      stageNeighborPrev.textContent = prev ? '← ' + prev.name : '';
+      stageNeighborNext.textContent = next ? next.name + ' →' : '';
+    } else {
+      stageNav.style.display = 'none';
+      stageNeighborPrev.textContent = '';
+      stageNeighborNext.textContent = '';
+    }
+  }
+
+  function openStage() {
+    stageOpen = true;
+    stageOverlay.classList.add('active');
+    updateStageUI();
+    // Keep screen on if supported
+    if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(()=>{});
+  }
+  function closeStage() {
+    stageOpen = false;
+    stageOverlay.classList.remove('active');
+  }
+
+  // Stage circle flash (mirrors main circle)
+  function stageFlash() {
+    stageBigCircle.classList.add('flash');
+    setTimeout(() => stageBigCircle.classList.remove('flash'), 110);
+  }
+
+  // Hook into existing doFlash to also flash stage circle when open
+  const _origDoFlash = doFlash;
+
+  document.getElementById('stageCircleBtn').addEventListener('click', openStage);
+  document.getElementById('stageCircleBtn').addEventListener('touchstart', e => { e.preventDefault(); openStage(); }, { passive: false });
+  document.getElementById('stageExit').addEventListener('click', closeStage);
+
+  stagePrev.addEventListener('click', () => { navRelative(-1); updateStageUI(); });
+  stageNext.addEventListener('click', () => { navRelative(+1); updateStageUI(); });
+
+  // Swipe support on stage overlay
+  let swipeStartX = null;
+  stageOverlay.addEventListener('touchstart', e => {
+    if (e.target.closest('.stage-nav-btn') || e.target.closest('.stage-exit')) return;
+    swipeStartX = e.touches[0].clientX;
+  }, { passive: true });
+  stageOverlay.addEventListener('touchend', e => {
+    if (swipeStartX === null) return;
+    const dx = e.changedTouches[0].clientX - swipeStartX;
+    swipeStartX = null;
+    if (Math.abs(dx) < 50) return; // not a swipe
+    if (dx < 0) { // swipe left → next
+      if (!stageNext.disabled) { navRelative(+1); updateStageUI(); }
+    } else { // swipe right → prev
+      if (!stagePrev.disabled) { navRelative(-1); updateStageUI(); }
+    }
+  }, { passive: true });
+
+  // Tap big circle = toggle metronome
+  stageBigCircle.addEventListener('click', toggle);
+  stageBigCircle.addEventListener('touchstart', e => { e.preventDefault(); toggle(); }, { passive: false });
+
+  // Escape key closes stage
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && stageOpen) closeStage();
+  });
+
+  // Patch doFlash to also flash stage circle
+  function doFlash() {
+    circle.classList.add('flash');
+    if (flashT) clearTimeout(flashT);
+    flashT = setTimeout(() => circle.classList.remove('flash'), 110);
+    if (stageOpen) stageFlash();
+    if (stageOpen) stageBpmNum.textContent = bpm; // keep in sync
+  }
 
   // ── PWA ────────────────────────────────────────────────────────────────────
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
