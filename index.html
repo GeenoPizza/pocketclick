@@ -22,8 +22,8 @@
   --card: rgba(255,255,255,0.06);
   --card-border: rgba(255,255,255,0.11);
   --text: #e4e4e4;
-  --muted: #999;
-  --faint: #666;
+  --muted: #aaa;
+  --faint: #888;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -42,9 +42,9 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
   backdrop-filter: blur(16px);
   position: relative; z-index: 10;
 }
-.topbar-left .brand { font-size: 9px; letter-spacing: .32em; text-transform: uppercase; color: var(--faint); }
-.topbar-left .brand a { color: var(--faint); text-decoration: none; transition: color .2s; }
-.topbar-left .brand a:hover { color: #bbb; }
+.topbar-left .brand { font-size: 10px; letter-spacing: .28em; text-transform: uppercase; color: var(--faint); }
+.topbar-left .brand a { color: #888; text-decoration: none; transition: color .2s; }
+.topbar-left .brand a:hover { color: #ccc; }
 .topbar-left .app-name { font-size: 17px; font-weight: 700; color: #d0d0d0; margin-top: 2px; }
 .tab-btns { display: flex; gap: 3px; background: rgba(255,255,255,.06); border-radius: 22px; padding: 3px; }
 .tab-btn { padding: 6px 16px; border-radius: 18px; border: none; background: transparent; color: #aaa; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .2s; font-family: inherit; }
@@ -81,16 +81,16 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 }
 .side-circle:hover { border-color: rgba(255,255,255,.2); }
 .side-circle-label {
-  font-size: 8px; font-weight: 700; letter-spacing: .12em;
-  text-transform: uppercase; color: #555; text-align: center;
-  transition: color .2s; line-height: 1.3; padding: 0 4px;
+  font-size: 9px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: #888; text-align: center;
+  transition: color .2s; line-height: 1.4; padding: 0 4px;
 }
-.side-circle:hover .side-circle-label { color: #999; }
+.side-circle:hover .side-circle-label { color: #bbb; }
 /* tap circle is on the right */
 .tap-circle { right: 12px; }
 /* stage circle is on the left */
 .stage-circle { left: 12px; }
-.stage-circle:hover .side-circle-label { color: #aaa; }
+.stage-circle:hover .side-circle-label { color: #ccc; }
 .circle {
   width: 190px; height: 190px; border-radius: 50%;
   border: 10px solid rgba(255,255,255,.13);
@@ -104,10 +104,10 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .circle.flash {
   box-shadow: 0 0 0 2px var(--accent), 0 0 36px var(--accent), 0 0 72px var(--accent-soft), 0 18px 55px rgba(0,0,0,.5);
 }
-.bpm-num { font-size: 62px; font-weight: 700; line-height: 1; color: var(--accent); transition: color .5s; letter-spacing: -2px; }
-.bpm-lbl { font-size: 10px; letter-spacing: .45em; text-transform: uppercase; color: #666; margin-top: 5px; }
-.circle-hint { font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: #333; margin-top: 9px; transition: color .3s; }
-.circle:hover .circle-hint, .circle.on .circle-hint { color: #666; }
+.bpm-num { font-size: 62px; font-weight: 700; line-height: 1; color: var(--accent); transition: color .5s; letter-spacing: -.01em; text-align: center; display: block; font-feature-settings: "tnum" 1; font-variant-numeric: tabular-nums; width: 3ch; margin: 0 auto; }
+.bpm-lbl { font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: #666; margin-top: 5px; }
+.circle-hint { font-size: 11px; letter-spacing: .15em; text-transform: uppercase; color: #555; margin-top: 9px; transition: color .3s; }
+.circle:hover .circle-hint, .circle.on .circle-hint { color: #bbb; }
 
 /* ── TAP TEMPO CIRCLE ── */
 .tap-circle.tap-flash {
@@ -115,20 +115,21 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
   border-color: var(--accent);
 }
 .tap-label {
-  font-size: 10px; font-weight: 700; letter-spacing: .15em;
-  text-transform: uppercase; color: #555; transition: color .2s; line-height: 1;
+  font-size: 10px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: #888; transition: color .2s; line-height: 1;
 }
-.tap-circle:hover .tap-label { color: #888; }
+.tap-circle:hover .tap-label { color: #bbb; }
 .tap-circle.tap-flash .tap-label { color: var(--accent); }
 .tap-bpm {
   font-size: 17px; font-weight: 700; color: var(--accent);
-  transition: color .5s; letter-spacing: -1px; margin-top: 2px; min-height: 20px;
+  transition: color .5s; letter-spacing: 0; margin-top: 2px; min-height: 20px;
+  font-feature-settings: "tnum"; font-variant-numeric: tabular-nums;
 }
 .tap-hint {
-  font-size: 7px; letter-spacing: .15em; text-transform: uppercase;
-  color: #333; margin-top: 3px; transition: color .2s;
+  font-size: 9px; letter-spacing: .12em; text-transform: uppercase;
+  color: #555; margin-top: 3px; transition: color .2s;
 }
-.tap-circle:hover .tap-hint { color: #555; }
+.tap-circle:hover .tap-hint { color: #999; }
 
 /* ── STAGE MODE OVERLAY ── */
 .stage-overlay {
@@ -155,8 +156,8 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .stage-big-circle.flash {
   box-shadow: 0 0 0 3px var(--accent), 0 0 50px var(--accent), 0 0 100px var(--accent-soft);
 }
-.stage-bpm-num { font-size: 78px; font-weight: 700; color: var(--accent); transition: color .5s; letter-spacing: -3px; line-height: 1; }
-.stage-bpm-lbl { font-size: 10px; letter-spacing: .45em; text-transform: uppercase; color: #333; margin-top: 6px; }
+.stage-bpm-num { font-size: 78px; font-weight: 700; color: var(--accent); transition: color .5s; letter-spacing: -.01em; line-height: 1; text-align: center; display: block; font-feature-settings: "tnum" 1; font-variant-numeric: tabular-nums; width: 3ch; margin: 0 auto; }
+.stage-bpm-lbl { font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: #888; margin-top: 6px; }
 
 /* Song nav bar in stage mode */
 .stage-nav {
@@ -166,28 +167,29 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .stage-nav-btn {
   width: 48px; height: 48px; border-radius: 50%;
   border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.05);
-  color: #666; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: #999; cursor: pointer; display: flex; align-items: center; justify-content: center;
   transition: all .15s; flex-shrink: 0;
 }
 .stage-nav-btn:hover { border-color: rgba(255,255,255,.25); color: #ddd; background: rgba(255,255,255,.1); }
 .stage-nav-btn:active { transform: scale(.92); }
 .stage-nav-btn:disabled { opacity: .18; pointer-events: none; }
 .stage-song-info { flex: 1; text-align: center; min-width: 0; }
-.stage-song-name { font-size: 18px; font-weight: 700; color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.stage-band-name { font-size: 11px; letter-spacing: .25em; text-transform: uppercase; color: #444; margin-top: 4px; }
-.stage-song-bpm  { font-size: 13px; font-weight: 600; color: var(--accent); transition: color .5s; margin-top: 6px; }
+.stage-song-name { font-size: 21px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stage-band-name { font-size: 14px; letter-spacing: .18em; text-transform: uppercase; color: #aaa; margin-top: 4px; }
+.stage-song-bpm  { font-size: 15px; font-weight: 600; color: var(--accent); transition: color .5s; margin-top: 6px; }
 
 /* Neighbors (prev/next song names) */
-.stage-neighbors { margin-top: 28px; display: flex; justify-content: space-between; width: 100%; padding: 0 32px; }
-.stage-neighbor { font-size: 11px; color: #333; max-width: 44%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stage-neighbors { margin-top: 24px; position: relative; display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 0 24px; gap: 12px; }
+.stage-neighbor { font-size: 16px; font-weight: 600; color: #999; max-width: 36%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.5; }
 .stage-neighbor.right { text-align: right; }
+.stage-counter { font-size: 18px; font-weight: 700; color: #aaa; letter-spacing: .04em; text-align: center; font-feature-settings: "tnum"; font-variant-numeric: tabular-nums; position: absolute; left: 50%; transform: translateX(-50%); pointer-events: none; }
 
 /* Exit button top-right */
 .stage-exit {
   position: absolute; top: calc(env(safe-area-inset-top, 0px) + 16px); right: 20px;
   width: 36px; height: 36px; border-radius: 50%;
   border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06);
-  color: #555; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: #aaa; cursor: pointer; display: flex; align-items: center; justify-content: center;
   transition: all .15s;
 }
 .stage-exit:hover { background: rgba(255,255,255,.12); color: #ccc; }
@@ -209,14 +211,14 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
 
 /* Subdivisions */
 .sub-row { display: flex; gap: 6px; }
-.sub-btn { flex: 1; padding: 9px 4px; border-radius: 12px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.04); color: #777; font-size: 11px; font-weight: 600; cursor: pointer; transition: all .15s; text-align: center; font-family: inherit; }
+.sub-btn { flex: 1; padding: 9px 4px; border-radius: 12px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.04); color: #888; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; text-align: center; font-family: inherit; }
 .sub-btn:hover { background: rgba(255,255,255,.09); color: #bbb; }
-.sub-btn.active { background: rgba(255,255,255,.1); border-color: var(--accent); color: #ddd; box-shadow: 0 0 10px var(--accent-soft); }
+.sub-btn.active { background: rgba(255,255,255,.1); border-color: var(--accent); color: #ccc; box-shadow: 0 0 10px var(--accent-soft); }
 
 /* Volume */
 .vol-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); border-radius: 13px; }
-.vol-icon { color: #666; display: flex; align-items: center; }
-.vol-lbl { font-size: 11px; color: #666; min-width: 34px; text-align: right; }
+.vol-icon { color: #777; display: flex; align-items: center; }
+.vol-lbl { font-size: 12px; color: #888; min-width: 34px; text-align: right; }
 
 /* Play button */
 .play-btn {
@@ -254,9 +256,9 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
 
 /* Song info */
 .pb-info { flex: 1; min-width: 0; }
-.pb-band { font-size: 9px; letter-spacing: .28em; text-transform: uppercase; color: var(--band-color); transition: color .5s; font-weight: 600; }
+.pb-band { font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--band-color); transition: color .5s; font-weight: 600; }
 .pb-song { font-size: 14px; font-weight: 700; color: #eee; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pb-bpm  { font-size: 11px; color: #888; margin-top: 1px; }
+.pb-bpm  { font-size: 12px; color: #999; margin-top: 1px; }
 
 /* Controls */
 .pb-controls { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
@@ -269,34 +271,34 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
 .pb-btn:hover { background: rgba(255,255,255,.14); color: #fff; }
 .pb-btn:active { transform: scale(.9); }
 .pb-btn:disabled { opacity: .25; pointer-events: none; }
-.pb-btn.close-btn { border-color: rgba(255,255,255,.07); color: #666; }
+.pb-btn.close-btn { border-color: rgba(255,255,255,.1); color: #888; }
 .pb-btn.close-btn:hover { background: rgba(200,50,50,.15); border-color: rgba(200,50,50,.3); color: #d06060; }
 
 /* Song number indicator */
-.pb-pos { font-size: 11px; color: #777; font-weight: 600; text-align: center; white-space: nowrap; flex-shrink: 0; }
+.pb-pos { font-size: 13px; color: #999; font-weight: 600; text-align: center; white-space: nowrap; flex-shrink: 0; }
 
 /* Prev/next song names below controls */
 .pb-neighbors { display: flex; justify-content: space-between; padding: 0 16px 8px; gap: 8px; }
-.pb-neighbor { font-size: 12px; font-weight: 600; color: #777; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 46%; }
+.pb-neighbor { font-size: 13px; font-weight: 500; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 46%; }
 .pb-neighbor.right { text-align: right; }
 .pb-neighbor.faded { opacity: 0; }
 
 /* ── SETLIST PAGE ── */
 .sec-head { display: flex; align-items: center; justify-content: space-between; }
 .sec-head h2 { font-size: 20px; font-weight: 700; color: #d8d8d8; }
-.sec-count { font-size: 11px; color: var(--muted); }
+.sec-count { font-size: 13px; color: #888; }
 
-.breadcrumb { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #888; min-height: 22px; }
+.breadcrumb { display: flex; align-items: center; gap: 7px; font-size: 13px; color: #999; min-height: 22px; }
 .bc-link { color: var(--accent); cursor: pointer; font-weight: 600; transition: color .2s; }
 .bc-link:hover { color: #9ab8ff; }
-.bc-sep { color: #444; }
+.bc-sep { color: #777; }
 .bc-cur { color: #ccc; font-weight: 600; }
 
 .add-form { background: var(--card); border: 1px solid var(--card-border); border-radius: 20px; padding: 16px 18px; display: flex; flex-direction: column; gap: 11px; }
-.form-label { font-size: 10px; letter-spacing: .28em; text-transform: uppercase; color: #999; }
+.form-label { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: #999; }
 .form-row { display: flex; gap: 8px; align-items: center; }
 .inp { flex: 1; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 11px 13px; color: #e0e0e0; font-size: 14px; outline: none; transition: border .2s, background .2s; font-family: inherit; }
-.inp::placeholder { color: #444; }
+.inp::placeholder { color: #666; }
 .inp:focus { border-color: rgba(255,255,255,.28); background: rgba(255,255,255,.09); }
 .inp-sm { width: 80px; flex: none; text-align: center; font-weight: 700; font-size: 16px; }
 .add-btn { padding: 11px 16px; border-radius: 12px; border: 1px solid rgba(95,141,255,.32); background: rgba(95,141,255,.1); color: #90b3ff; font-size: 14px; font-weight: 700; cursor: pointer; transition: all .15s; white-space: nowrap; font-family: inherit; }
@@ -322,12 +324,12 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
 .band-stripe { width: 4px; height: 36px; border-radius: 3px; flex-shrink: 0; }
 .band-info { flex: 1; min-width: 0; }
 .band-name { font-size: 15px; font-weight: 700; color: #ddd; }
-.band-meta { font-size: 11px; color: #888; margin-top: 3px; }
+.band-meta { font-size: 13px; color: #999; margin-top: 3px; }
 .band-right { display: flex; align-items: center; gap: 8px; }
-.band-arrow { color: #444; }
+.band-arrow { color: #888; }
 
-.icon-btn { width: 32px; height: 32px; border-radius: 9px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.04); color: #555; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; flex-shrink: 0; }
-.icon-btn:hover { background: rgba(255,255,255,.12); color: #aaa; }
+.icon-btn { width: 32px; height: 32px; border-radius: 9px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.05); color: #777; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; flex-shrink: 0; }
+.icon-btn:hover { background: rgba(255,255,255,.14); color: #ccc; }
 .icon-btn.del:hover { background: rgba(200,50,50,.15); border-color: rgba(200,50,50,.3); color: #d06060; }
 .icon-btn:active { transform: scale(.88); }
 .icon-btn:disabled { opacity: .2; pointer-events: none; }
@@ -341,27 +343,27 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
 }
 .song-card:hover { background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.17); }
 .song-card.current { border-color: var(--band-border); background: var(--band-soft); box-shadow: 0 0 16px var(--band-soft); }
-.song-num { font-size: 11px; color: #555; min-width: 20px; font-weight: 700; text-align: right; }
+.song-num { font-size: 12px; color: #999; min-width: 20px; font-weight: 700; text-align: right; }
 .song-card.current .song-num { color: var(--band-color); }
 .song-info { flex: 1; min-width: 0; }
 .song-name { font-size: 14px; font-weight: 600; color: #d4d4d4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .song-card.current .song-name { color: #fff; }
-.song-note { font-size: 11px; color: #666; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.song-note { font-size: 12px; color: #888; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .song-bpm { font-size: 15px; font-weight: 700; color: var(--band-color); background: rgba(0,0,0,.2); border: 1px solid rgba(255,255,255,.08); border-radius: 9px; padding: 4px 10px; flex-shrink: 0; transition: color .5s; }
 .song-actions { display: flex; gap: 4px; flex-shrink: 0; }
 
 .bottom-actions { display: flex; gap: 7px; }
-.action-btn { flex: 1; padding: 11px 6px; border-radius: 13px; border: 1px solid var(--card-border); background: rgba(255,255,255,.04); color: #999; font-size: 11px; font-weight: 600; cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; gap: 5px; font-family: inherit; }
+.action-btn { flex: 1; padding: 11px 6px; border-radius: 13px; border: 1px solid var(--card-border); background: rgba(255,255,255,.04); color: #ccc; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; gap: 5px; font-family: inherit; }
 .action-btn:hover { background: rgba(255,255,255,.1); color: #ccc; }
 .action-btn.primary { border-color: var(--band-border); background: var(--band-soft); color: var(--band-color); }
 .action-btn.primary:hover { filter: brightness(1.2); }
 .action-btn.danger:hover { background: rgba(200,50,50,.1); border-color: rgba(200,50,50,.25); color: #d06060; }
 
-.empty-state { text-align: center; padding: 40px 16px; color: #555; font-size: 13px; line-height: 2; }
+.empty-state { text-align: center; padding: 40px 16px; color: #999; font-size: 14px; line-height: 2; }
 
-.footer-link { text-align: center; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #555; padding: 4px 8px 0; flex-shrink: 0; }
-.footer-link a { color: #666; text-decoration: none; transition: color .2s; }
-.footer-link a:hover { color: #bbb; }
+.footer-link { text-align: center; font-size: 10px; letter-spacing: .15em; text-transform: uppercase; color: #666; padding: 4px 8px 0; flex-shrink: 0; }
+.footer-link a { color: #888; text-decoration: none; transition: color .2s; }
+.footer-link a:hover { color: #ddd; }
 </style>
 </head>
 <body>
@@ -488,7 +490,6 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
           </button>
           <button class="icon-btn" id="importDataBtn" title="Importa backup (JSON)">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            
           </button>
           <input type="file" id="importFileInput" accept=".json" style="display:none">
         </div>
@@ -522,8 +523,10 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
           <input class="inp inp-sm" id="inpSongBpm" type="number" placeholder="BPM" min="40" max="240">
         </div>
         <div class="form-row">
-          <input class="inp" id="inpSongNote" type="text" placeholder="Note opzionali…" maxlength="60">
+          <input class="inp" id="inpSongNote" type="text" placeholder="Note brevi (opzionale)…" maxlength="60">
           <button class="add-btn" id="addSongBtn">+ Aggiungi</button>
+        </div>
+        <div class="form-row">
         </div>
       </div>
       <div class="items-list" id="songList"></div>
@@ -578,10 +581,12 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
       </button>
     </div>
 
-    <div class="stage-neighbors">
+    <div class="stage-neighbors" style="align-items:center;">
       <div class="stage-neighbor" id="stageNeighborPrev"></div>
+      <div class="stage-counter" id="stageCounter">–</div>
       <div class="stage-neighbor right" id="stageNeighborNext"></div>
     </div>
+
   </div>
 
 </div><!-- /app -->
@@ -678,9 +683,10 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
   }
 
   function updateBPMDisplay(v) {
-    // Only updates display — does NOT clear live song
     bpm = Math.max(40, Math.min(240, v));
-    bpmDisp.textContent = bpm; bpmValEl.textContent = bpm; bpmSlider.value = bpm;
+    bpmDisp.textContent = bpm;
+    if (stageBpmNum) stageBpmNum.textContent = bpm;
+    bpmValEl.textContent = bpm; bpmSlider.value = bpm;
     if (running) { stopMet(); startMet(); }
   }
 
@@ -834,7 +840,9 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
     const band = getLiveBand();
     if (!band || idx < 0) return;
     const next = band.songs[idx + dir];
-    if (next) selectSong(liveBandId, next.id);
+    if (next) {
+      selectSong(liveBandId, next.id);
+      }
   }
 
   // ── NAVIGATION ─────────────────────────────────────────────────────────────
@@ -987,9 +995,9 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
     if (!name) { document.getElementById('inpSongName').focus(); return; }
     if (!bpmV || bpmV < 40 || bpmV > 240) { document.getElementById('inpSongBpm').focus(); return; }
     band.songs.push({ id: uid(), name, bpm: bpmV, note });
-    document.getElementById('inpSongName').value = '';
-    document.getElementById('inpSongBpm').value  = '';
-    document.getElementById('inpSongNote').value = '';
+    document.getElementById('inpSongName').value  = '';
+    document.getElementById('inpSongBpm').value   = '';
+    document.getElementById('inpSongNote').value  = '';
     save(); renderSongs();
     document.getElementById('inpSongName').focus();
   }
@@ -1111,10 +1119,10 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
   const stageNext       = document.getElementById('stageNext');
   const stageNeighborPrev = document.getElementById('stageNeighborPrev');
   const stageNeighborNext = document.getElementById('stageNeighborNext');
+  const stageCounter = document.getElementById('stageCounter');
   let stageOpen = false;
 
   function updateStageUI() {
-    // Always sync BPM number
     stageBpmNum.textContent = bpm;
     const band = getLiveBand();
     const song = getLiveSong();
@@ -1123,16 +1131,19 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
       stageSongName.textContent = song.name;
       stageBandName.textContent = band.name;
       stageSongBpm.textContent  = song.bpm + ' BPM';
-      const idx  = getLiveIdx();
-      const prev = idx > 0 ? band.songs[idx-1] : null;
-      const next = idx < band.songs.length-1 ? band.songs[idx+1] : null;
+      const idx   = getLiveIdx();
+      const total = band.songs.length;
+      const prev  = idx > 0       ? band.songs[idx-1] : null;
+      const next  = idx < total-1 ? band.songs[idx+1] : null;
       stagePrev.disabled = !prev;
       stageNext.disabled = !next;
       stageNeighborPrev.textContent = prev ? '← ' + prev.name : '';
+      stageCounter.textContent      = (idx+1) + ' / ' + total;
       stageNeighborNext.textContent = next ? next.name + ' →' : '';
     } else {
       stageNav.style.display = 'none';
       stageNeighborPrev.textContent = '';
+      stageCounter.textContent      = '';
       stageNeighborNext.textContent = '';
     }
   }
@@ -1198,7 +1209,7 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
     if (flashT) clearTimeout(flashT);
     flashT = setTimeout(() => circle.classList.remove('flash'), 110);
     if (stageOpen) stageFlash();
-    if (stageOpen) stageBpmNum.textContent = bpm; // keep in sync
+    if (stageOpen && stageBpmNum) stageBpmNum.textContent = bpm;
   }
 
   // ── PWA ────────────────────────────────────────────────────────────────────
