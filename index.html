@@ -420,6 +420,56 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
   color: #5dda9d; box-shadow: 0 0 10px rgba(93,218,157,.15);
 }
 .voice-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+/* ── QUICK-PICK OVERLAY ── */
+.qpick-backdrop {
+  display: none; position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,.82); backdrop-filter: blur(8px);
+  align-items: flex-end; justify-content: center;
+}
+.qpick-backdrop.open { display: flex; }
+.qpick-sheet {
+  width: 100%; max-width: 480px;
+  background: #16181c; border: 1px solid rgba(255,255,255,.12);
+  border-radius: 24px 24px 0 0;
+  padding-bottom: calc(env(safe-area-inset-bottom,0px) + 16px);
+  display: flex; flex-direction: column;
+  max-height: 80vh;
+  animation: slideUp .22s ease;
+}
+@keyframes slideUp { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.qpick-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 20px 12px; flex-shrink: 0;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+.qpick-title { font-size: 13px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--band-color); transition: color .5s; }
+.qpick-close {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.05);
+  color: #888; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.qpick-close:hover { background: rgba(255,255,255,.12); color: #ccc; }
+.qpick-list { overflow-y: auto; padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; }
+.qpick-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 13px; border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.06); background: rgba(255,255,255,.03);
+  cursor: pointer; transition: all .15s;
+}
+.qpick-item:hover  { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.14); }
+.qpick-item.active { border-color: var(--band-border); background: var(--band-soft); box-shadow: 0 0 12px var(--band-soft); }
+.qpick-num  { font-size: 12px; color: #666; font-weight: 700; min-width: 20px; text-align: right; }
+.qpick-item.active .qpick-num { color: var(--band-color); }
+.qpick-name { flex: 1; font-size: 14px; font-weight: 600; color: #d4d4d4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qpick-item.active .qpick-name { color: #fff; }
+.qpick-bpm  { font-size: 13px; font-weight: 700; color: var(--band-color); background: rgba(0,0,0,.25); border: 1px solid rgba(255,255,255,.08); border-radius: 8px; padding: 3px 9px; flex-shrink: 0; }
+
+/* Player bar info: looks tappable */
+.pb-info { cursor: pointer; border-radius: 10px; padding: 4px 6px; margin: -4px -6px; transition: background .15s; }
+.pb-info:hover  { background: rgba(255,255,255,.06); }
+.pb-info:active { background: rgba(255,255,255,.1); }
 </style>
 </head>
 <body>
@@ -502,7 +552,7 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
     <div class="player-bar" id="playerBar">
       <div class="pb-progress"><div class="pb-fill" id="pbFill"></div></div>
       <div class="pb-main">
-        <div class="pb-info">
+        <div class="pb-info" id="pbInfo">
           <div class="pb-band" id="pbBand">–</div>
           <div class="pb-song" id="pbSong">–</div>
           <div class="pb-bpm"  id="pbBpm">–</div>
@@ -649,6 +699,21 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
       <div class="stage-neighbor right" id="stageNeighborNext"></div>
     </div>
 
+  </div>
+
+  <!-- ══ QUICK-PICK OVERLAY ══ -->
+  <div class="qpick-backdrop" id="qpickBackdrop">
+    <div class="qpick-sheet">
+      <div class="qpick-header">
+        <div class="qpick-title" id="qpickTitle">Setlist</div>
+        <button class="qpick-close" id="qpickClose">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="qpick-list" id="qpickList"></div>
+    </div>
   </div>
 
   <!-- ══ EDIT SONG MODAL ══ -->
@@ -917,6 +982,42 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
     pbPrevName.textContent = prev ? '← ' + prev.name : '';
     pbNextName.textContent = next ? next.name + ' →' : '';
   }
+
+  // ── QUICK-PICK OVERLAY ────────────────────────────────────────────────────
+  const qpickBackdrop = document.getElementById('qpickBackdrop');
+  const qpickList     = document.getElementById('qpickList');
+  const qpickTitle    = document.getElementById('qpickTitle');
+  const qpickClose    = document.getElementById('qpickClose');
+
+  function openQpick() {
+    const band = getLiveBand();
+    if (!band || !band.songs.length) return;
+    qpickTitle.textContent = band.name;
+    qpickList.innerHTML = band.songs.map((s, i) => `
+      <div class="qpick-item${s.id === liveSongId ? ' active' : ''}" data-sid="${s.id}">
+        <div class="qpick-num">${i+1}</div>
+        <div class="qpick-name">${esc(s.name)}</div>
+        <div class="qpick-bpm">${s.bpm}</div>
+      </div>`).join('');
+    qpickList.querySelectorAll('.qpick-item').forEach(el => {
+      el.addEventListener('click', () => {
+        selectSong(liveBandId, el.dataset.sid);
+        closeQpick();
+      });
+    });
+    // Scroll active item into view
+    const active = qpickList.querySelector('.active');
+    if (active) setTimeout(() => active.scrollIntoView({ block: 'center', behavior: 'smooth' }), 80);
+    qpickBackdrop.classList.add('open');
+  }
+
+  function closeQpick() { qpickBackdrop.classList.remove('open'); }
+
+  qpickClose.addEventListener('click', closeQpick);
+  qpickBackdrop.addEventListener('click', e => { if (e.target === qpickBackdrop) closeQpick(); });
+
+  // Tap on song info area in player bar → open quick-pick
+  document.getElementById('pbInfo').addEventListener('click', openQpick);
 
   // ── SELECT / LOAD SONG ─────────────────────────────────────────────────────
   function selectSong(bandId, songId) {
