@@ -99,6 +99,8 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
   cursor: pointer; user-select: none;
   transition: border-color .5s, box-shadow .1s;
   box-shadow: 0 18px 55px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.08);
+  will-change: box-shadow;
+  transform: translateZ(0);
 }
 .circle:hover { border-color: rgba(255,255,255,.22); }
 .circle.flash {
@@ -152,6 +154,8 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
   transition: border-color .5s, box-shadow .1s;
   box-shadow: 0 0 60px rgba(0,0,0,.8);
   cursor: pointer; user-select: none;
+  will-change: box-shadow;
+  transform: translateZ(0);
 }
 .stage-big-circle.flash {
   box-shadow: 0 0 0 3px var(--accent), 0 0 50px var(--accent), 0 0 100px var(--accent-soft);
@@ -470,6 +474,92 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
 .pb-info { cursor: pointer; border-radius: 10px; padding: 4px 6px; margin: -4px -6px; transition: background .15s; }
 .pb-info:hover  { background: rgba(255,255,255,.06); }
 .pb-info:active { background: rgba(255,255,255,.1); }
+
+/* ═══════════════════════════════════════════════════════════════
+   LOW-PERF MODE  (class on <html> when device is slow)
+   Removes: backdrop-filter, multi-shadow box-shadow, heavy transitions,
+            radial-gradient on circles, CSS variable transitions.
+   Keeps:   all layout, colors, typography, functionality.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* GPU layer hint for the circle — promotes it to its own layer so
+   flash box-shadow changes don't repaint the whole page */
+.circle, .stage-big-circle {
+  will-change: box-shadow;
+  transform: translateZ(0);
+}
+
+/* LOW PERF overrides */
+html.low-perf .topbar {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: #0d0f10 !important;
+}
+html.low-perf .circle {
+  background: #0d0e10 !important;          /* flat bg, no radial-gradient */
+  box-shadow: 0 4px 12px rgba(0,0,0,.5) !important;
+  transition: none !important;
+}
+html.low-perf .circle.flash {
+  box-shadow: 0 0 0 3px var(--accent) !important;  /* simple ring, no blur */
+}
+html.low-perf .stage-big-circle {
+  background: #080909 !important;
+  box-shadow: 0 0 20px rgba(0,0,0,.8) !important;
+  transition: none !important;
+}
+html.low-perf .stage-big-circle.flash {
+  box-shadow: 0 0 0 4px var(--accent) !important;
+}
+html.low-perf .side-circle {
+  background: #0c0d0f !important;
+  box-shadow: none !important;
+  transition: none !important;
+}
+html.low-perf .player-bar {
+  transition: none !important;
+  box-shadow: none !important;
+}
+html.low-perf .pb-fill {
+  transition: width .1s linear, background .1s !important;
+}
+html.low-perf .bpm-num,
+html.low-perf .bpm-val,
+html.low-perf .stage-bpm-num,
+html.low-perf .tap-bpm {
+  transition: none !important;             /* no color interpolation */
+}
+html.low-perf .sub-btn {
+  transition: none !important;
+  box-shadow: none !important;
+}
+html.low-perf .sub-btn.active {
+  box-shadow: none !important;
+}
+html.low-perf .play-btn {
+  box-shadow: none !important;
+  transition: none !important;
+}
+html.low-perf .band-card,
+html.low-perf .song-card,
+html.low-perf .modal {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html.low-perf .card {
+  background: rgba(255,255,255,.05) !important;
+}
+html.low-perf * {
+  /* Globally reduce any remaining transition to 50ms max */
+  transition-duration: 50ms !important;
+}
+html.low-perf .circle,
+html.low-perf .stage-big-circle,
+html.low-perf .bpm-num,
+html.low-perf .bpm-val,
+html.low-perf .stage-bpm-num {
+  transition: none !important;           /* these specifically: zero transition */
+}
 </style>
 </head>
 <body>
@@ -842,16 +932,20 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
   function setMetAccent(i) {
     const c = ACCENTS[i];
     root.style.setProperty('--accent', c);
-    const r=parseInt(c.slice(1,3),16), g=parseInt(c.slice(3,5),16), b=parseInt(c.slice(5,7),16);
-    root.style.setProperty('--accent-soft', `rgba(${r},${g},${b},.22)`);
+    if (!isLowPerf) {
+      const r=parseInt(c.slice(1,3),16), g=parseInt(c.slice(3,5),16), b=parseInt(c.slice(5,7),16);
+      root.style.setProperty('--accent-soft', `rgba(${r},${g},${b},.22)`);
+    }
   }
 
   function setBandColor(hex) {
     hex = hex || '#5f8dff';
     root.style.setProperty('--band-color', hex);
-    const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
-    root.style.setProperty('--band-soft',   `rgba(${r},${g},${b},.13)`);
-    root.style.setProperty('--band-border',  `rgba(${r},${g},${b},.4)`);
+    if (!isLowPerf) {
+      const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+      root.style.setProperty('--band-soft',   `rgba(${r},${g},${b},.13)`);
+      root.style.setProperty('--band-border',  `rgba(${r},${g},${b},.4)`);
+    }
   }
 
   function updateBPMDisplay(v) {
@@ -1530,6 +1624,46 @@ input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && stageOpen) closeStage();
   });
+
+  // ── PERFORMANCE DETECTION ──────────────────────────────────────────────────
+  // Runs a micro-benchmark on first interaction.
+  // Measures how long 500 forced style reads take — slow GPUs struggle with these.
+  let perfChecked = false;
+  let isLowPerf   = false;
+
+  function checkPerf() {
+    if (perfChecked) return;
+    perfChecked = true;
+    try {
+      const t0 = performance.now();
+      const el = document.createElement('div');
+      el.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;';
+      document.body.appendChild(el);
+      for (let i = 0; i < 500; i++) {
+        el.style.transform = `translateX(${i % 2}px)`;
+        void el.offsetWidth; // force layout/reflow
+      }
+      document.body.removeChild(el);
+      const ms = performance.now() - t0;
+
+      // Also check RAM hint if available (Chrome only)
+      const ramGB = navigator.deviceMemory || 99;
+      
+      // Flag as low-perf if: reflow takes >80ms OR RAM ≤ 2GB
+      isLowPerf = ms > 80 || ramGB <= 2;
+
+      if (isLowPerf) {
+        document.documentElement.classList.add('low-perf');
+        console.log('[PocketClick] Low-perf mode active — reflow: ' + ms.toFixed(1) + 'ms, RAM: ' + ramGB + 'GB');
+      } else {
+        console.log('[PocketClick] Normal mode — reflow: ' + ms.toFixed(1) + 'ms, RAM: ' + ramGB + 'GB');
+      }
+    } catch(e) { /* ignore */ }
+  }
+
+  // Run perf check on first user interaction (needs DOM ready + real thread)
+  document.addEventListener('touchstart', checkPerf, { once: true, passive: true });
+  document.addEventListener('click',      checkPerf, { once: true });
 
   // Patch doFlash to also flash stage circle
   function doFlash() {
